@@ -82,7 +82,7 @@ isSpec :: Char -> Bool
 isSpec c = c `elem` ['-']
 
 cha :: Parser Char
-cha = sat (\c -> isAlpha c || isEscape c || isSpace c || isSpec c)
+cha = sat (\c -> isAlpha c || isEscape c || isSpace c || isSpec c || isDigit c)
 
 str :: Parser String
 str = do many cha
