@@ -2,6 +2,7 @@ module Jq.JParser where
 
 import           Jq.Json
 import           Parsing.Parsing
+import qualified Data.Map                      as Map
 
 parseJNull :: Parser JSON
 parseJNull = do
@@ -32,5 +33,39 @@ parseString :: Parser JSON
 parseString = do xs <- uni_str
                  return (JString xs)
 
+parseArrayElem :: Parser JSON
+parseArrayElem = do _ <- symbol "]"
+                    return (JArray [])
+                 <|>
+                 do x <- parseJSON
+                    (do _ <- symbol "]"
+                        return (JArray [x])
+                     <|>
+                     do _ <- symbol ","
+                        a <- parseArrayElem
+                        return ((\(JArray xs) -> JArray (x:xs)) a))
+
+parseArray :: Parser JSON
+parseArray = do _ <- symbol "["
+                parseArrayElem
+
+parseObjectElem :: Parser JSON
+parseObjectElem = do _ <- symbol "}"
+                     return (JObject Map.empty)
+                  <|> 
+                  do k <- parseString
+                     _ <- symbol ":"
+                     v <- parseJSON
+                     (do _ <- symbol "}"
+                         return (JObject (Map.singleton k v))
+                      <|>
+                      do _ <- symbol ","
+                         xs <- parseObjectElem
+                         return ((\(JObject m) -> JObject (Map.insert k v m)) xs))
+
+parseObject :: Parser JSON
+parseObject = do _ <- symbol "{"
+                 parseObjectElem
+
 parseJSON :: Parser JSON
-parseJSON = token $ parseJNull <|> parseFloat <|> parseInt <|> parseBool <|> parseString
+parseJSON = token $ parseJNull <|> parseObject <|> parseArray <|> parseFloat <|> parseInt <|> parseBool <|> parseString
