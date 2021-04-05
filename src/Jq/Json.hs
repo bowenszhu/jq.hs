@@ -1,7 +1,6 @@
 module Jq.Json where
 
 import           Data.List
-import qualified Data.Map                      as Map
 
 data JSON
   = JNull
@@ -10,7 +9,7 @@ data JSON
   | JBool Bool
   | JString String
   | JArray [JSON]
-  | JObject (Map.Map JSON JSON)
+  | JObject [(JSON, JSON)]
 
 instance Eq JSON where
   (JString a) == (JString b) = a == b
@@ -31,8 +30,4 @@ instance Show JSON where
   show (JString s    ) = s
   show (JArray  xs   ) = "[" ++ intercalate "," (map show xs) ++ "]"
   show (JObject m) =
-    "{"
-      ++ intercalate
-           ","
-           (map (\(k, v) -> show k ++ ":" ++ show v) (reverse (Map.toList m)))
-      ++ "}"
+    "{" ++ intercalate "," (map (\(k, v) -> show k ++ ":" ++ show v) m) ++ "}"

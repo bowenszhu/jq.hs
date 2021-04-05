@@ -2,7 +2,6 @@ module Jq.JParser where
 
 import           Jq.Json
 import           Parsing.Parsing
-import qualified Data.Map                      as Map
 
 parseJNull :: Parser JSON
 parseJNull = do
@@ -51,17 +50,17 @@ parseArray = do _ <- symbol "["
 
 parseObjectElem :: Parser JSON
 parseObjectElem = do _ <- symbol "}"
-                     return (JObject Map.empty)
+                     return (JObject [])
                   <|> 
                   do k <- parseString
                      _ <- symbol ":"
                      v <- parseJSON
                      (do _ <- symbol "}"
-                         return (JObject (Map.singleton k v))
+                         return (JObject [(k, v)])
                       <|>
                       do _ <- symbol ","
                          xs <- parseObjectElem
-                         return ((\(JObject m) -> JObject (Map.insert k v m)) xs))
+                         return ((\(JObject m) -> JObject ((k, v) : m)) xs))
 
 parseObject :: Parser JSON
 parseObject = do _ <- symbol "{"
