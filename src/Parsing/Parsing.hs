@@ -74,6 +74,15 @@ letter = sat isAlpha
 alphanum :: Parser Char
 alphanum = sat isAlphaNum
 
+isEscape :: Char -> Bool
+isEscape c = c `elem` ['\'', '\"', '\\', '\n', '\r', '\t', '\b', '\f', '\v', '\xFF']
+
+uni_esc :: Parser Char
+uni_esc = sat (\c -> isAlpha c || isEscape c)
+
+uni_str :: Parser String
+uni_str = do many uni_esc
+
 char :: Char -> Parser Char
 char x = sat (== x)
 

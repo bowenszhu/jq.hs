@@ -23,9 +23,14 @@ parseBool =
   do
     _ <- string "true"
     return (JBool True)
-  <|> do
-        _ <- string "false"
-        return (JBool False)
+  <|> 
+  do
+    _ <- string "false"
+    return (JBool False)
+
+parseString :: Parser JSON
+parseString = do xs <- uni_str
+                 return (JString xs)
 
 parseJSON :: Parser JSON
-parseJSON = token $ parseJNull <|> parseFloat <|> parseInt <|> parseBool
+parseJSON = token $ parseJNull <|> parseFloat <|> parseInt <|> parseBool <|> parseString
