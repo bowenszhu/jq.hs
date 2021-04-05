@@ -98,6 +98,22 @@ int = do char '-'
          return (-n)
        <|> nat
 
+u_float :: Parser Float
+u_float = do xs <- some digit
+             char '.'
+             ys <- some digit
+             (do string "E+"
+                 zs <- some digit
+                 return (read (xs ++ "." ++ ys ++ "E+" ++ zs) :: Float)
+              <|>
+              return (read (xs ++ "." ++ ys) :: Float))
+
+float :: Parser Float
+float = do char '-'
+           uf <- u_float
+           return (-uf)
+         <|> u_float           
+
 -- Handling spacing
 
 space :: Parser ()
