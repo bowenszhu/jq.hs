@@ -30,11 +30,11 @@ license:             BSD3
 license-file:        LICENSE
 
 -- The package author(s).
-author:              Your Name
+author:              Bowen Zhu
 
 -- An email address to which users can send suggestions, bug reports, and
 -- patches.
-maintainer:          youremail@tudelft.nl
+maintainer:          B.Zhu-3@student.tudelft.nl
 
 -- A copyright notice.
 -- copyright:
