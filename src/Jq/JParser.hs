@@ -29,7 +29,7 @@ parseBool =
     return (JBool False)
 
 parseString :: Parser JSON
-parseString = do xs <- uni_str
+parseString = do xs <- str
                  return (JString xs)
 
 parseArrayElem :: Parser JSON

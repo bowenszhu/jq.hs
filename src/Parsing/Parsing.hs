@@ -6,6 +6,7 @@ module Parsing.Parsing (module Parsing.Parsing, module Control.Applicative) wher
 
 import Control.Applicative
 import Data.Char
+import Debug.Trace (trace)
 
 -- Basic definitions
 
@@ -77,11 +78,14 @@ alphanum = sat isAlphaNum
 isEscape :: Char -> Bool
 isEscape c = c `elem` ['\'', '\"', '\\', '\n', '\r', '\t', '\b', '\f', '\v', '\xFF']
 
-uni_esc :: Parser Char
-uni_esc = sat (\c -> isAlpha c || isEscape c)
+isSpec :: Char -> Bool
+isSpec c = c `elem` ['-']
 
-uni_str :: Parser String
-uni_str = do many uni_esc
+cha :: Parser Char
+cha = sat (\c -> isAlpha c || isEscape c || isSpace c || isSpec c)
+
+str :: Parser String
+str = do many cha
 
 char :: Char -> Parser Char
 char x = sat (== x)
