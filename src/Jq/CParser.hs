@@ -59,11 +59,14 @@ parseArraySlice = do _ <- symbol "."
 parseValueIteratorElem :: Parser Filter
 parseValueIteratorElem = do d <- nat
                             (do _ <- symbol "]"
-                                return (ArrayIterator [d])
+                                (do _ <- symbol "?"
+                                    return (ArrayIterator [d] False)
+                                 <|>
+                                 return (ArrayIterator [d] True))
                              <|>
                              do _ <- symbol ","
                                 ds <- parseValueIteratorElem
-                                return ((\(ArrayIterator xs)-> ArrayIterator (d:xs)) ds))
+                                return ((\(ArrayIterator xs b)-> ArrayIterator (d:xs) b) ds))
 
 parseValueIterator :: Parser Filter
 parseValueIterator = do _ <- symbol "."

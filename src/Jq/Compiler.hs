@@ -18,16 +18,20 @@ compile (ObjectIndex s b) _ = if b
   then Left ("error: Cannot index with string \"" ++ s ++ "\"")
   else return []
 compile (ArrayIndex i _) (JArray a) = return [a !! i]
-compile (ArrayIndex _ b) _          = if b then Left "error: Cannot index non-array" else return []
+compile (ArrayIndex _ b) _ =
+  if b then Left "error: Cannot index non-array" else return []
 compile (ArraySlice s t _) (JArray a) =
   return [JArray [ a !! i | i <- [s .. t - 1] ]]
-compile (ArraySlice _ _ b) _ = if b then Left "error: Cannot slice non-array" else return []
+compile (ArraySlice _ _ b) _ =
+  if b then Left "error: Cannot slice non-array" else return []
 compile (ObjectIterator _) (JObject m) = return [ v | (_, v) <- m ]
-compile (ObjectIterator b) _ = if b then Left "error: Cannot slice non-object" else return []
-compile (ArrayIterator xs) (JArray a) = return [ a !! i | i <- xs ]
-compile (ArrayIterator _) _ = Left "error: Cannot iterator non-array"
-compile (Pipe []) inp = return [inp]
-compile (Pipe [f]) inp = compile f inp
+compile (ObjectIterator b) _ =
+  if b then Left "error: Cannot slice non-object" else return []
+compile (ArrayIterator xs _) (JArray a) = return [ a !! i | i <- xs ]
+compile (ArrayIterator _ b) _ =
+  if b then Left "error: Cannot iterator non-array" else return []
+compile (Pipe []      ) inp = return [inp]
+compile (Pipe [f     ]) inp = compile f inp
 compile (Pipe (f : fs)) inp = case compile f inp of
   Left  s   -> Left s
   Right [r] -> compile (Pipe fs) r
