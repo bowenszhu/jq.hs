@@ -136,9 +136,16 @@ parseFArray = do _ <- symbol "["
                  xs <- parseFilter
                  _ <- symbol "]"
                  return (FArray xs)
+
+parseFBool :: Parser Filter
+parseFBool = do _ <- string "true"
+                return (FBool True)
+             <|>
+             do _ <- string "false"
+                return (FBool False)
                
 parseFilter :: Parser Filter
-parseFilter = parseComma <|> parsePipe <|> parsePipeSpec <|> parseObjectIndex <|> parseArrayIndex <|> parseArraySlice <|> parseValueIterator <|> parseIdentity <|> parseParenthesis <|> parseFArray
+parseFilter = parseComma <|> parsePipe <|> parsePipeSpec <|> parseFBool <|> parseObjectIndex <|> parseArrayIndex <|> parseArraySlice <|> parseValueIterator <|> parseIdentity <|> parseParenthesis <|> parseFArray
                
 parseConfig :: [String] -> Either String Config
 parseConfig s = case s of
