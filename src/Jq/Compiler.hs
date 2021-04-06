@@ -23,7 +23,9 @@ compile (ArrayIndex _ _) JNull      = return [JNull]
 compile (ArrayIndex _ b) _ =
   if b then Left "error: Cannot index non-array" else return []
 compile (ArraySlice s t _) (JArray a) =
-  return [JArray [ a !! i | i <- [s .. t - 1] ]]
+  return [JArray [ a !! i | i <- [s .. min (t - 1) (length a - 1)] ]]
+compile (ArraySlice s t _) (JString a) =
+  return [JString [ a !! i | i <- [s + 1 .. min t (length a)] ]]
 compile ArraySlice{} JNull = return [JNull]
 compile (ArraySlice _ _ b) _ =
   if b then Left "error: Cannot slice non-array" else return []
@@ -51,9 +53,8 @@ compile (Pipe (f : fs)) inp = case compile f inp of
   Right [r] -> compile (Pipe fs) r
   Right rs  -> helpCompilePipe fs rs
 compile (FArray f) inp = case compile f inp of
-  Left s -> Left s
-  Right rs ->
-    return [JArray rs]
+  Left  s  -> Left s
+  Right rs -> return [JArray rs]
 
 helpCompilePipe :: [Filter] -> [JSON] -> Either String [JSON]
 helpCompilePipe _  []       = return []
