@@ -1,7 +1,7 @@
 module Jq.Json where
 
 import           Data.List
--- import Debug.Trace (trace)
+-- import           Debug.Trace                    ( trace )
 
 data JSON
   = JNull
@@ -43,3 +43,25 @@ instance Show JSON where
              (intercalate ",\n" (map (\(k, v) -> show k ++ ": " ++ show v) m))
            )
       ++ "\n}"
+
+-- instance Show JSON where
+--   show JNull           = trace "JNull" "null"
+--   show (JInt    i    ) = trace ("JInt " ++ show i) show i
+--   show (JFloat  f    ) = trace ("JFloat " ++ show f) show f
+--   show (JBool   True ) = "true"
+--   show (JBool   False) = "false"
+--   show (JString s    ) = trace ("{{{" ++ s ++ "}}}") s
+--   show (JArray  []   ) = trace "JArray[]" []
+--   show (JArray xs) =
+--     trace "JArrayXS" "[\n  "
+--       ++ intercalate "\n  " (lines (intercalate ",\n" (map show xs)))
+--       ++ "\n]"
+--   show (JObject []) = trace "JObject{}" "{}"
+--   show (JObject m) =
+--     trace "JObjectXS" "{\n  "
+--       ++ intercalate
+--            "\n  "
+--            (lines
+--              (intercalate ",\n" (map (\(k, v) -> show k ++ ": " ++ show v) m))
+--            )
+--       ++ "\n}"

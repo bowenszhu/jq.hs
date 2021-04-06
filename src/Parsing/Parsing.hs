@@ -6,7 +6,7 @@ module Parsing.Parsing (module Parsing.Parsing, module Control.Applicative) wher
 
 import Control.Applicative
 import Data.Char
-import Debug.Trace (trace)
+-- import Debug.Trace (trace)
 
 -- Basic definitions
 
@@ -84,8 +84,46 @@ isSpec c = c `elem` ['-']
 cha :: Parser Char
 cha = sat (\c -> isAlpha c || isEscape c || isSpace c || isSpec c || isDigit c)
 
+hex :: Parser Char
+hex = sat isHexDigit
+
+hexChar :: Char -> Int
+hexChar ch
+    | ch == '0' = 0
+    | ch == '1' = 1
+    | ch == '2' = 2
+    | ch == '3' = 3
+    | ch == '4' = 4
+    | ch == '5' = 5
+    | ch == '6' = 6
+    | ch == '7' = 7
+    | ch == '8' = 8
+    | ch == '9' = 9
+    | ch == 'A' = 10
+    | ch == 'B' = 11
+    | ch == 'C' = 12
+    | ch == 'D' = 13
+    | ch == 'E' = 14
+    | ch == 'F' = 15
+    | ch == 'a' = 10
+    | ch == 'b' = 11
+    | ch == 'c' = 12
+    | ch == 'd' = 13
+    | ch == 'e' = 14
+    | ch == 'f' = 15
+    | otherwise     = 0
+
+uni :: Parser Char
+uni = do char '\\'
+         char 'u'
+         a <- hex
+         b <- hex
+         c <- hex
+         d <- hex
+         return (toEnum (((hexChar a * 16 + hexChar b) * 16 + hexChar c) * 16 + hexChar d) :: Char)
+
 str :: Parser String
-str = do many cha
+str = do many (uni <|> cha)
 
 char :: Char -> Parser Char
 char x = sat (== x)
