@@ -2,7 +2,7 @@ module Jq.Filters where
 
 import           Data.List
 
-data Filter = Identity | ObjectIndex String Bool | ArrayIndex Int Bool | ArraySlice Int Int Bool | AllIterator Bool | ArrayIterator [Int] Bool | Comma [Filter] | Pipe [Filter] | FArray Filter | FBool Bool
+data Filter = Identity | ObjectIndex String Bool | ArrayIndex Int Bool | ArraySlice Int Int Bool | AllIterator Bool | ArrayIterator [Int] Bool | Comma [Filter] | Pipe [Filter] | FArray Filter | FBool Bool | FNull
 
 instance Show Filter where
   show Identity          = "."
@@ -16,7 +16,8 @@ instance Show Filter where
   show (Comma  fs) = intercalate " , " (map show fs)
   show (Pipe   fs) = intercalate " | " (map show fs)
   show (FArray f ) = "[" ++ show f ++ "]"
-  show (FBool b) = show b
+  show (FBool  b ) = show b
+  show FNull       = "null"
 
 -- instance Show Filter where
 --   show Identity          = "Identity."

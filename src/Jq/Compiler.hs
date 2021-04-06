@@ -56,6 +56,7 @@ compile (FArray f) inp = case compile f inp of
   Left  s  -> Left s
   Right rs -> return [JArray rs]
 compile (FBool b) _ = return [JBool b]
+compile FNull _ = return [JNull]
 
 helpCompilePipe :: [Filter] -> [JSON] -> Either String [JSON]
 helpCompilePipe _  []       = return []
