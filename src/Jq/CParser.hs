@@ -50,6 +50,23 @@ parseArraySlice = do _ <- symbol "."
                      _ <- symbol "]"
                      return (ArraySlice s t)
 
+parseValueIteratorElem :: Parser Filter
+parseValueIteratorElem = do d <- nat
+                            (do _ <- symbol "]"
+                                return (ArrayIterator [d])
+                             <|>
+                             do _ <- symbol ","
+                                ds <- parseValueIteratorElem
+                                return ((\(ArrayIterator xs)-> ArrayIterator (d:xs)) ds))
+
+parseValueIterator :: Parser Filter
+parseValueIterator = do _ <- symbol "."
+                        _ <- symbol "["
+                        (do _ <- symbol "]"
+                            return ObjectIterator
+                         <|>
+                         parseValueIteratorElem)
+
 parsePipe :: Parser Filter
 parsePipe = do f <- parseObjectIndex
                (do _ <- symbol "|"
@@ -62,7 +79,7 @@ parsePipe = do f <- parseObjectIndex
                 return (Pipe [f]))
 
 parseFilter :: Parser Filter
-parseFilter = parsePipe <|> parseObjectIndex <|> parseArrayIndex <|> parseArraySlice <|> parseIdentity
+parseFilter = parsePipe <|> parseObjectIndex <|> parseArrayIndex <|> parseArraySlice <|> parseValueIterator <|> parseIdentity
 
 parseConfig :: [String] -> Either String Config
 parseConfig s = case s of

@@ -3,8 +3,8 @@ module Jq.Compiler where
 import qualified Data.Map                      as Map
 import           Jq.Filters
 import           Jq.Json
--- import Debug.Trace (trace)
 
+-- import Debug.Trace (trace)
 
 type JProgram a = JSON -> Either String a
 
@@ -21,10 +21,14 @@ compile (ArrayIndex i) (JArray a) = return [a !! i]
 compile (ArrayIndex _) _          = Left "error: Cannot index non-array"
 compile (ArraySlice s t) (JArray a) =
   return [JArray [ a !! i | i <- [s .. t - 1] ]]
-compile (ArraySlice _ _) _   = Left "error: Cannot slice non-array"
-compile (Pipe []       ) inp = return [inp]
-compile (Pipe [f     ] ) inp = compile f inp
-compile (Pipe (f : fs) ) inp = case compile f inp of
+compile (ArraySlice _ _) _ = Left "error: Cannot slice non-array"
+compile ObjectIterator (JObject m) = return [ v | (_, v) <- m ]
+compile ObjectIterator _ = Left "error: Cannot slice non-object"
+compile (ArrayIterator xs) (JArray a) = return [ a !! i | i <- xs ]
+compile (ArrayIterator _) _ = Left "error: Cannot iterator non-array"
+compile (Pipe []) inp = return [inp]
+compile (Pipe [f]) inp = compile f inp
+compile (Pipe (f : fs)) inp = case compile f inp of
   Left  s   -> Left s
   Right [r] -> compile (Pipe fs) r
   _         -> Left "error: Cannot pipe"
