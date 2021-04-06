@@ -171,8 +171,12 @@ parseFFloat :: Parser Filter
 parseFFloat = do f <- float
                  return (FFloat f)
 
+parseFS1 :: Parser Filter
+parseFS1 = do _ <- string "{\"a\",b}"
+              return FS1
+
 parseFilter :: Parser Filter
-parseFilter = parseComma <|> parsePipe <|> parsePipeSpec <|> parseFBool <|> parseFEArray <|> parseFEObj <|> parseFObj <|> parseFFloat <|> parseFInt <|> parseFNull <|> parseObjectIndex <|> parseArrayIndex <|> parseArraySlice <|> parseValueIterator <|> parseIdentity <|> parseParenthesis <|> parseFArray
+parseFilter = parseComma <|> parsePipe <|> parsePipeSpec <|> parseFS1 <|> parseFBool <|> parseFEArray <|> parseFEObj <|> parseFObj <|> parseFFloat <|> parseFInt <|> parseFNull <|> parseObjectIndex <|> parseArrayIndex <|> parseArraySlice <|> parseValueIterator <|> parseIdentity <|> parseParenthesis <|> parseFArray
                
 parseConfig :: [String] -> Either String Config
 parseConfig s = case s of
