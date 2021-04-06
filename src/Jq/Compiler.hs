@@ -4,7 +4,7 @@ import qualified Data.Map                      as Map
 import           Jq.Filters
 import           Jq.Json
 
--- import Debug.Trace (trace)
+import           Debug.Trace                    ( trace )
 
 type JProgram a = JSON -> Either String a
 
@@ -14,18 +14,22 @@ compile (ObjectIndex s _) (JObject m) =
   case Map.lookup (JString s) (Map.fromList m) of
     Nothing -> return [JNull]
     Just j  -> return [j]
-compile (ObjectIndex s b) _ = if b
+compile (ObjectIndex _ _) JNull = return [JNull]
+compile (ObjectIndex s b) _     = if b
   then Left ("error: Cannot index with string \"" ++ s ++ "\"")
   else return []
 compile (ArrayIndex i _) (JArray a) = return [a !! i]
+compile (ArrayIndex _ _) JNull      = return [JNull]
 compile (ArrayIndex _ b) _ =
   if b then Left "error: Cannot index non-array" else return []
 compile (ArraySlice s t _) (JArray a) =
   return [JArray [ a !! i | i <- [s .. t - 1] ]]
+compile ArraySlice{} JNull = return [JNull]
 compile (ArraySlice _ _ b) _ =
   if b then Left "error: Cannot slice non-array" else return []
 compile (AllIterator _) (JObject m) = return [ v | (_, v) <- m ]
 compile (AllIterator _) (JArray  a) = return a
+compile (AllIterator _) JNull       = return [JNull]
 compile (AllIterator b) _ =
   if b then Left "error: Cannot slice non-array/object" else return []
 compile (ArrayIterator xs _) (JArray a) = return [ a !! i | i <- xs ]
@@ -47,8 +51,9 @@ compile (Pipe (f : fs)) inp = case compile f inp of
   Right [r] -> compile (Pipe fs) r
   Right rs  -> helpCompilePipe fs rs
 compile (FArray f) inp = case compile f inp of
-  Left  s  -> Left s
-  Right rs -> return [JArray rs]
+  Left s -> trace ("left FArray" ++ s) Left s
+  Right rs ->
+    trace ("right FArray" ++ show rs ++ "right End\n") (return [JArray rs])
 
 helpCompilePipe :: [Filter] -> [JSON] -> Either String [JSON]
 helpCompilePipe _  []       = return []
