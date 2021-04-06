@@ -42,10 +42,13 @@ compile (Comma (f : fs)) inp = case compile f inp of
 compile (Pipe []      ) inp = return [inp]
 compile (Pipe [f     ]) inp = compile f inp
 compile (Pipe (f : fs)) inp = case compile f inp of
-  Left  s        -> Left s
-  Right []       -> return []
-  Right [r     ] -> compile (Pipe fs) r
-  Right rs -> helpCompilePipe fs rs
+  Left  s   -> Left s
+  Right []  -> return []
+  Right [r] -> compile (Pipe fs) r
+  Right rs  -> helpCompilePipe fs rs
+compile (FArray f) inp = case compile f inp of
+  Left  s  -> Left s
+  Right rs -> return [JArray rs]
 
 helpCompilePipe :: [Filter] -> [JSON] -> Either String [JSON]
 helpCompilePipe _  []       = return []

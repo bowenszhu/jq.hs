@@ -2,7 +2,7 @@ module Jq.Filters where
 
 import           Data.List
 
-data Filter = Identity | ObjectIndex String Bool | ArrayIndex Int Bool | ArraySlice Int Int Bool | AllIterator Bool | ArrayIterator [Int] Bool | Comma [Filter] | Pipe [Filter]
+data Filter = Identity | ObjectIndex String Bool | ArrayIndex Int Bool | ArraySlice Int Int Bool | AllIterator Bool | ArrayIterator [Int] Bool | Comma [Filter] | Pipe [Filter] | FArray Filter
 
 instance Show Filter where
   show Identity          = "."
@@ -13,8 +13,9 @@ instance Show Filter where
   show (AllIterator b) = ".[]" ++ (if b then "" else "?")
   show (ArrayIterator xs b) =
     ".[" ++ intercalate "," (map show xs) ++ "]" ++ (if b then "" else "?")
-  show (Comma fs) = intercalate " , " (map show fs)
-  show (Pipe  fs) = intercalate " | " (map show fs)
+  show (Comma  fs) = intercalate " , " (map show fs)
+  show (Pipe   fs) = intercalate " | " (map show fs)
+  show (FArray f ) = "[" ++ show f ++ "]"
 
 data Config = ConfigC
   { filters :: Filter
