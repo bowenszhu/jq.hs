@@ -114,9 +114,16 @@ parsePipe = do x <- parseOp
                y <- parsePipeElem
                return ((\(Pipe xs) -> Pipe (x:xs)) y)
 
+parsePipeSpec :: Parser Filter
+parsePipeSpec = do x <- parseOp
+                   (do y <- parsePipeSpec
+                       return ((\(Pipe xs) -> Pipe (x:xs)) y)
+                    <|>
+                    return (Pipe [x]))
+               
 parseFilter :: Parser Filter
-parseFilter = parseComma <|> parsePipe <|> parseObjectIndex <|> parseArrayIndex <|> parseArraySlice <|> parseValueIterator <|> parseIdentity
-
+parseFilter = parseComma <|> parsePipe <|> parsePipeSpec <|> parseObjectIndex <|> parseArrayIndex <|> parseArraySlice <|> parseValueIterator <|> parseIdentity
+               
 parseConfig :: [String] -> Either String Config
 parseConfig s = case s of
   [] -> Left "No filters provided"
