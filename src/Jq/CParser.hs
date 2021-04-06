@@ -51,7 +51,10 @@ parseArraySlice = do _ <- symbol "."
                      _ <- symbol ":"
                      t <- nat
                      _ <- symbol "]"
-                     return (ArraySlice s t)
+                     (do _ <- symbol "?"
+                         return (ArraySlice s t False)
+                      <|>
+                      return (ArraySlice s t True))
 
 parseValueIteratorElem :: Parser Filter
 parseValueIteratorElem = do d <- nat

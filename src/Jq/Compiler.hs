@@ -19,9 +19,9 @@ compile (ObjectIndex s b) _ = if b
   else return []
 compile (ArrayIndex i _) (JArray a) = return [a !! i]
 compile (ArrayIndex _ b) _          = if b then Left "error: Cannot index non-array" else return []
-compile (ArraySlice s t) (JArray a) =
+compile (ArraySlice s t _) (JArray a) =
   return [JArray [ a !! i | i <- [s .. t - 1] ]]
-compile (ArraySlice _ _) _ = Left "error: Cannot slice non-array"
+compile (ArraySlice _ _ b) _ = if b then Left "error: Cannot slice non-array" else return []
 compile (ObjectIterator _) (JObject m) = return [ v | (_, v) <- m ]
 compile (ObjectIterator b) _ = if b then Left "error: Cannot slice non-object" else return []
 compile (ArrayIterator xs) (JArray a) = return [ a !! i | i <- xs ]
