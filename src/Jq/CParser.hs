@@ -12,17 +12,26 @@ parseIdentity = do
 parseObjectIndex :: Parser Filter
 parseObjectIndex = do _ <- char '.'
                       (do xs <- obj_ident
-                          return (ObjectIndex ("\"" ++ xs ++ "\""))
+                          (do _ <- char '?'
+                              return (ObjectIndex ("\"" ++ xs ++ "\"") False)
+                           <|>
+                           return (ObjectIndex ("\"" ++ xs ++ "\"") True))
                        <|>
                        do _ <- char '\"'
                           xs <- obj_ident
                           _ <- char '\"'
-                          return (ObjectIndex ("\"" ++ xs ++ "\""))
+                          (do _ <- char '?'
+                              return (ObjectIndex ("\"" ++ xs ++ "\"") False)
+                           <|>
+                           return (ObjectIndex ("\"" ++ xs ++ "\"") True))
                        <|>
                        do _ <- string "[\""
                           xs <- obj_ident
                           _ <- string "\"]"
-                          return (ObjectIndex ("\"" ++ xs ++ "\"")))
+                          (do _ <- char '?'
+                              return (ObjectIndex ("\"" ++ xs ++ "\"") False)
+                           <|>
+                           return (ObjectIndex ("\"" ++ xs ++ "\"") True)))
 
 parsePipe :: Parser Filter
 parsePipe = do f <- parseObjectIndex

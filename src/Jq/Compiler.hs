@@ -10,12 +10,13 @@ type JProgram a = JSON -> Either String a
 
 compile :: Filter -> JProgram [JSON]
 compile (Identity) inp = return [inp]
-compile (ObjectIndex s) (JObject m) =
+compile (ObjectIndex s _) (JObject m) =
   case Map.lookup (JString s) (Map.fromList m) of
     Nothing -> return [JNull]
     Just j  -> return [j]
-compile (ObjectIndex s) _ =
-  Left ("error: Cannot index with string \"" ++ s ++ "\"")
+compile (ObjectIndex s b) _ = if b
+  then Left ("error: Cannot index with string \"" ++ s ++ "\"")
+  else return []
 compile (Pipe []      ) inp = return [inp]
 compile (Pipe [f     ]) inp = compile f inp
 compile (Pipe (f : fs)) inp = case compile f inp of
