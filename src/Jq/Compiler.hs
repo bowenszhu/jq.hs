@@ -4,7 +4,7 @@ import qualified Data.Map                      as Map
 import           Jq.Filters
 import           Jq.Json
 
-import           Debug.Trace                    ( trace )
+-- import           Debug.Trace                    ( trace )
 
 type JProgram a = JSON -> Either String a
 
@@ -51,9 +51,9 @@ compile (Pipe (f : fs)) inp = case compile f inp of
   Right [r] -> compile (Pipe fs) r
   Right rs  -> helpCompilePipe fs rs
 compile (FArray f) inp = case compile f inp of
-  Left s -> trace ("left FArray" ++ s) Left s
+  Left s -> Left s
   Right rs ->
-    trace ("right FArray" ++ show rs ++ "right End\n") (return [JArray rs])
+    return [JArray rs]
 
 helpCompilePipe :: [Filter] -> [JSON] -> Either String [JSON]
 helpCompilePipe _  []       = return []
