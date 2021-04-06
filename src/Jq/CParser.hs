@@ -97,16 +97,20 @@ parseComma = do x <- parseOp
                 return ((\(Comma xs) -> Comma (x:xs)) y)
 
 parsePipeElem :: Parser Filter
-parsePipeElem = do x <- parseOp
-                   (do _ <- symbol "|"
-                       y <- parsePipeElem
-                       return ((\(Pipe xs) -> Pipe (x:xs)) y)
-                    <|>
-                    return (Pipe [x]))
+parsePipeElem = do _ <- symbol "|"
+                   x <- parseOp
+                   y <- parsePipeElem
+                   return ((\(Pipe xs) -> Pipe (x:xs)) y)
+                <|>
+                do x <- parseOp
+                   y <- parsePipeElem
+                   return ((\(Pipe xs) -> Pipe (x:xs)) y)
+                <|>
+                do x <- parseOp
+                   return (Pipe [x])
 
 parsePipe :: Parser Filter
 parsePipe = do x <- parseOp
-               _ <- symbol "|"
                y <- parsePipeElem
                return ((\(Pipe xs) -> Pipe (x:xs)) y)
 
