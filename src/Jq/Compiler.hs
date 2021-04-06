@@ -24,26 +24,37 @@ compile (ArraySlice s t _) (JArray a) =
   return [JArray [ a !! i | i <- [s .. t - 1] ]]
 compile (ArraySlice _ _ b) _ =
   if b then Left "error: Cannot slice non-array" else return []
-compile (ObjectIterator _) (JObject m) = return [ v | (_, v) <- m ]
-compile (ObjectIterator b) _ =
-  if b then Left "error: Cannot slice non-object" else return []
+compile (AllIterator _) (JObject m) = return [ v | (_, v) <- m ]
+compile (AllIterator _) (JArray  a) = return a
+compile (AllIterator b) _ =
+  if b then Left "error: Cannot slice non-array/object" else return []
 compile (ArrayIterator xs _) (JArray a) = return [ a !! i | i <- xs ]
 compile (ArrayIterator _ b) _ =
   if b then Left "error: Cannot iterator non-array" else return []
-compile (Comma []) inp = return [inp]
-compile (Comma [f]) inp = compile f inp
-compile (Comma (f:fs)) inp = case compile f inp of
-    Left s -> Left s
-    Right [r] -> case compile (Comma fs) inp of
-        Left t -> Left t
-        Right rs -> return (r:rs)
-    _ -> Left "error: Cannot comma"
+compile (Comma []      ) inp = return [inp]
+compile (Comma [f     ]) inp = compile f inp
+compile (Comma (f : fs)) inp = case compile f inp of
+  Left  s   -> Left s
+  Right [r] -> case compile (Comma fs) inp of
+    Left  t  -> Left t
+    Right rs -> return (r : rs)
+  _ -> Left "error: Cannot comma"
 compile (Pipe []      ) inp = return [inp]
 compile (Pipe [f     ]) inp = compile f inp
 compile (Pipe (f : fs)) inp = case compile f inp of
-  Left  s   -> Left s
-  Right [r] -> compile (Pipe fs) r
-  _         -> Left "error: Cannot pipe"
+  Left  s        -> Left s
+  Right []       -> return []
+  Right [r     ] -> compile (Pipe fs) r
+  Right rs -> helpCompilePipe fs rs
+
+helpCompilePipe :: [Filter] -> [JSON] -> Either String [JSON]
+helpCompilePipe _  []       = return []
+helpCompilePipe fs [x     ] = compile (Pipe fs) x
+helpCompilePipe fs (x : xs) = case compile (Pipe fs) x of
+  Left  m  -> Left m
+  Right rs -> case helpCompilePipe fs xs of
+    Left  n  -> Left n
+    Right qs -> return (rs ++ qs)
 
 run :: JProgram [JSON] -> JSON -> Either String [JSON]
 run p j = p j

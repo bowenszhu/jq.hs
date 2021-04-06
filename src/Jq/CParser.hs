@@ -73,9 +73,9 @@ parseValueIterator = do _ <- symbol "."
                         _ <- symbol "["
                         (do _ <- symbol "]"
                             (do _ <- symbol "?"
-                                return (ObjectIterator False)
+                                return (AllIterator False)
                              <|>
-                             return (ObjectIterator True))
+                             return (AllIterator True))
                          <|>
                          parseValueIteratorElem)
 
@@ -96,16 +96,19 @@ parseComma = do x <- parseOp
                 y <- parseCommaElem
                 return ((\(Comma xs) -> Comma (x:xs)) y)
 
+parsePipeElem :: Parser Filter
+parsePipeElem = do x <- parseOp
+                   (do _ <- symbol "|"
+                       y <- parsePipeElem
+                       return ((\(Pipe xs) -> Pipe (x:xs)) y)
+                    <|>
+                    return (Pipe [x]))
+
 parsePipe :: Parser Filter
-parsePipe = do f <- parseObjectIndex
-               (do _ <- symbol "|"
-                   p <- parsePipe
-                   return ((\(Pipe fs) -> Pipe (f:fs)) p)
-                <|>
-                do p <- parsePipe
-                   return ((\(Pipe fs) -> Pipe (f:fs)) p)
-                <|>
-                return (Pipe [f]))
+parsePipe = do x <- parseOp
+               _ <- symbol "|"
+               y <- parsePipeElem
+               return ((\(Pipe xs) -> Pipe (x:xs)) y)
 
 parseFilter :: Parser Filter
 parseFilter = parseComma <|> parsePipe <|> parseObjectIndex <|> parseArrayIndex <|> parseArraySlice <|> parseValueIterator <|> parseIdentity
