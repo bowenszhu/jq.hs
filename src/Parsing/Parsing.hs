@@ -123,7 +123,7 @@ uni = do char '\\'
          return (toEnum (((hexChar a * 16 + hexChar b) * 16 + hexChar c) * 16 + hexChar d) :: Char)
 
 str :: Parser String
-str = do many (uni <|> cha)
+str = do many (uni <|> cha <|> char '_')
 
 char :: Char -> Parser Char
 char x = sat (== x)
