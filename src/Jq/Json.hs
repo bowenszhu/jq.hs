@@ -29,17 +29,17 @@ instance Show JSON where
   show (JBool   True ) = "true"
   show (JBool   False) = "false"
   show (JString s    ) = s
-  show (JArray  xs   ) = "[" ++ intercalate "," (map show xs) ++ "]"
+  show (JArray  []   ) = "[]"
+  show (JArray xs) =
+    "[\n  "
+      ++ intercalate "\n  " (lines (intercalate ",\n" (map show xs)))
+      ++ "\n]"
+  show (JObject []) = "{}"
   show (JObject m) =
-    "{" ++ intercalate "," (map (\(k, v) -> show k ++ ":" ++ show v) m) ++ "}"
-
--- instance Show JSON where
---   show JNull           = "null"
---   show (JInt    i    ) = trace ("JInt " ++ show i) show i
---   show (JFloat  f    ) = trace ("JFloat " ++ show f) show f
---   show (JBool   True ) = trace "JBool true" "true"
---   show (JBool   False) = trace "JBool false" "false"
---   show (JString s    ) = trace ("JString " ++ s) s
---   show (JArray  xs   ) = "[" ++ intercalate "," (map show xs) ++ "]"
---   show (JObject m) =
---     "{" ++ intercalate "," (map (\(k, v) -> show k ++ ":" ++ show v) m) ++ "}"
+    "{\n  "
+      ++ intercalate
+           "\n  "
+           (lines
+             (intercalate ",\n" (map (\(k, v) -> show k ++ ": " ++ show v) m))
+           )
+      ++ "\n}"
