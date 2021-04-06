@@ -3,7 +3,7 @@ module Jq.Filters where
 import           Data.List
 import           Jq.Json                        ( JSON )
 
-data Filter = Identity | ObjectIndex String Bool | ArrayIndex Int Bool | ArraySlice Int Int Bool | AllIterator Bool | ArrayIterator [Int] Bool | Comma [Filter] | Pipe [Filter] | FArray Filter | FBool Bool | FNull | FEObj | FEArray | FObj JSON
+data Filter = Identity | ObjectIndex String Bool | ArrayIndex Int Bool | ArraySlice Int Int Bool | AllIterator Bool | ArrayIterator [Int] Bool | Comma [Filter] | Pipe [Filter] | FArray Filter | FBool Bool | FNull | FEObj | FEArray | FObj JSON | FInt Int | FFloat Float
 
 instance Show Filter where
   show Identity          = "."
@@ -21,7 +21,9 @@ instance Show Filter where
   show FNull       = "null"
   show FEObj       = "{}"
   show FEArray     = "[]"
-  show (FObj j)    = show j
+  show (FObj   j)  = show j
+  show (FInt   i)  = show i
+  show (FFloat f)  = show f
 
 -- instance Show Filter where
 --   show Identity          = "Identity."
@@ -35,6 +37,11 @@ instance Show Filter where
 --   show (Comma  fs) = intercalate " Comma, " (map show fs)
 --   show (Pipe   fs) = intercalate " Pipe| " (map show fs)
 --   show (FArray f ) = "FArray[" ++ show f ++ "]"
+--   show (FBool  b ) = "FBool " ++ show b
+--   show FNull       = "null"
+--   show FEObj       = "FEObj {}"
+--   show FEArray     = "FEArray []"
+--   show (FObj j)    = "FObj " ++ show j
 
 data Config = ConfigC
   { filters :: Filter

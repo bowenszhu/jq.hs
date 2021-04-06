@@ -55,11 +55,13 @@ compile (Pipe (f : fs)) inp = case compile f inp of
 compile (FArray f) inp = case compile f inp of
   Left  s  -> Left s
   Right rs -> return [JArray rs]
-compile (FBool b) _ = return [JBool b]
-compile FNull     _ = return [JNull]
-compile FEObj     _ = return [JObject []]
-compile FEArray   _ = return [JArray []]
-compile (FObj j)  _ = return [j]
+compile (FBool b)  _ = return [JBool b]
+compile FNull      _ = return [JNull]
+compile FEObj      _ = return [JObject []]
+compile FEArray    _ = return [JArray []]
+compile (FObj   j) _ = return [j]
+compile (FInt   i) _ = return [JInt i]
+compile (FFloat f) _ = return [JFloat f]
 
 helpCompilePipe :: [Filter] -> [JSON] -> Either String [JSON]
 helpCompilePipe _  []       = return []
