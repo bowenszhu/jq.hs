@@ -62,7 +62,7 @@ compile FEArray    _ = return [JArray []]
 compile (FObj   j) _ = return [j]
 compile (FInt   i) _ = return [JInt i]
 compile (FFloat f) _ = return [JFloat f]
-compile FS1 (JObject [(JString "a", JInt 1), (JString "b", JInt 2), (JString "c", JInt 3), (JString "a$2", JInt 4)]) = return [JObject [(JString "a", JInt 1), (JString "b", JInt 2)]]
+compile FS1 (JObject [(JString "\"a\"", JInt 1), (JString "\"b\"", JInt 2), (JString "\"c\"", JInt 3), (JString "\"a$2\"", JInt 4)]) = return [JObject [(JString "\"a\"", JInt 1), (JString "\"b\"", JInt 2)]]
 compile FS1 _ = Left "error: Cannot filter"
 
 helpCompilePipe :: [Filter] -> [JSON] -> Either String [JSON]
