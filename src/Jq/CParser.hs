@@ -14,8 +14,19 @@ parseObjectIndex = do _ <- char '.'
                       xs <- obj_ident
                       return (ObjectIndex ("\"" ++ xs ++ "\""))
 
+parsePipe :: Parser Filter
+parsePipe = do f <- parseObjectIndex
+               (do _ <- symbol "|"
+                   p <- parsePipe
+                   return ((\(Pipe fs) -> Pipe (f:fs)) p)
+                <|>
+                do p <- parsePipe
+                   return ((\(Pipe fs) -> Pipe (f:fs)) p)
+                <|>
+                return (Pipe [f]))
+
 parseFilter :: Parser Filter
-parseFilter = parseObjectIndex <|> parseIdentity
+parseFilter = parsePipe <|> parseObjectIndex <|> parseIdentity
 
 parseConfig :: [String] -> Either String Config
 parseConfig s = case s of

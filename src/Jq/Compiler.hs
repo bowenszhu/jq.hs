@@ -1,8 +1,8 @@
 module Jq.Compiler where
 
+import qualified Data.Map                      as Map
 import           Jq.Filters
 import           Jq.Json
-import qualified Data.Map as Map
 -- import Debug.Trace (trace)
 
 
@@ -10,11 +10,18 @@ type JProgram a = JSON -> Either String a
 
 compile :: Filter -> JProgram [JSON]
 compile (Identity) inp = return [inp]
-compile (ObjectIndex s) (JObject m) = 
-    case Map.lookup (JString s) (Map.fromList m) of
-        Nothing -> return [JNull]
-        Just j -> return [j]
-compile (ObjectIndex s) _ = Left ("error: Cannot index with string \"" ++ s ++ "\"")
+compile (ObjectIndex s) (JObject m) =
+  case Map.lookup (JString s) (Map.fromList m) of
+    Nothing -> return [JNull]
+    Just j  -> return [j]
+compile (ObjectIndex s) _ =
+  Left ("error: Cannot index with string \"" ++ s ++ "\"")
+compile (Pipe []      ) inp = return [inp]
+compile (Pipe [f     ]) inp = compile f inp
+compile (Pipe (f : fs)) inp = case compile f inp of
+  Left  s   -> Left s
+  Right [r] -> compile (Pipe fs) r
+  _         -> Left "error: Cannot pipe"
 
 run :: JProgram [JSON] -> JSON -> Either String [JSON]
 run p j = p j
