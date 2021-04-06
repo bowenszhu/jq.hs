@@ -39,7 +39,16 @@ parseArrayIndex = do _ <- symbol "."
                      _ <- symbol "["
                      i <- nat
                      _ <- symbol "]"
-                     return (ArrayIndex i)                     
+                     return (ArrayIndex i)
+
+parseArraySlice :: Parser Filter
+parseArraySlice = do _ <- symbol "."
+                     _ <- symbol "["
+                     s <- nat
+                     _ <- symbol ":"
+                     t <- nat
+                     _ <- symbol "]"
+                     return (ArraySlice s t)
 
 parsePipe :: Parser Filter
 parsePipe = do f <- parseObjectIndex
@@ -53,7 +62,7 @@ parsePipe = do f <- parseObjectIndex
                 return (Pipe [f]))
 
 parseFilter :: Parser Filter
-parseFilter = parsePipe <|> parseObjectIndex <|> parseArrayIndex <|> parseIdentity
+parseFilter = parsePipe <|> parseObjectIndex <|> parseArrayIndex <|> parseArraySlice <|> parseIdentity
 
 parseConfig :: [String] -> Either String Config
 parseConfig s = case s of

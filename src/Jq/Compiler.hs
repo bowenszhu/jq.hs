@@ -17,11 +17,14 @@ compile (ObjectIndex s _) (JObject m) =
 compile (ObjectIndex s b) _ = if b
   then Left ("error: Cannot index with string \"" ++ s ++ "\"")
   else return []
-compile (ArrayIndex i       ) (JArray a) = return [a !! i]
-compile (ArrayIndex _       ) _          = Left "error: Cannot index non-array"
-compile (Pipe       []      ) inp        = return [inp]
-compile (Pipe       [f     ]) inp        = compile f inp
-compile (Pipe       (f : fs)) inp        = case compile f inp of
+compile (ArrayIndex i) (JArray a) = return [a !! i]
+compile (ArrayIndex _) _          = Left "error: Cannot index non-array"
+compile (ArraySlice s t) (JArray a) =
+  return [JArray [ a !! i | i <- [s .. t - 1] ]]
+compile (ArraySlice _ _) _   = Left "error: Cannot slice non-array"
+compile (Pipe []       ) inp = return [inp]
+compile (Pipe [f     ] ) inp = compile f inp
+compile (Pipe (f : fs) ) inp = case compile f inp of
   Left  s   -> Left s
   Right [r] -> compile (Pipe fs) r
   _         -> Left "error: Cannot pipe"
