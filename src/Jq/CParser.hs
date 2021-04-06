@@ -39,7 +39,10 @@ parseArrayIndex = do _ <- symbol "."
                      _ <- symbol "["
                      i <- nat
                      _ <- symbol "]"
-                     return (ArrayIndex i)
+                     (do _ <- symbol "?"
+                         return (ArrayIndex i False)
+                      <|>
+                      return (ArrayIndex i True))
 
 parseArraySlice :: Parser Filter
 parseArraySlice = do _ <- symbol "."

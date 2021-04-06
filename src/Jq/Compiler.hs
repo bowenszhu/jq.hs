@@ -17,8 +17,8 @@ compile (ObjectIndex s _) (JObject m) =
 compile (ObjectIndex s b) _ = if b
   then Left ("error: Cannot index with string \"" ++ s ++ "\"")
   else return []
-compile (ArrayIndex i) (JArray a) = return [a !! i]
-compile (ArrayIndex _) _          = Left "error: Cannot index non-array"
+compile (ArrayIndex i _) (JArray a) = return [a !! i]
+compile (ArrayIndex _ b) _          = if b then Left "error: Cannot index non-array" else return []
 compile (ArraySlice s t) (JArray a) =
   return [JArray [ a !! i | i <- [s .. t - 1] ]]
 compile (ArraySlice _ _) _ = Left "error: Cannot slice non-array"
