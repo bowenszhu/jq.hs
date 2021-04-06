@@ -81,7 +81,7 @@ parseValueIterator = do _ <- symbol "."
                          parseValueIteratorElem)
 
 parseOp :: Parser Filter
-parseOp = parseObjectIndex <|> parseArrayIndex <|> parseArraySlice <|> parseValueIterator <|> parseIdentity <|> parseParenthesis <|> parseFArray
+parseOp = parseFS1 <|> parseFS2 <|> parseFS3 <|> parseFBool <|> parseFEArray <|> parseFEObj <|> parseFObj <|> parseFFloat <|> parseFInt <|> parseFNull <|> parseObjectIndex <|> parseArrayIndex <|> parseArraySlice <|> parseValueIterator <|> parseIdentity <|> parseParenthesis <|> parseFArray
 
 parseCommaElem :: Parser Filter
 parseCommaElem = do x <- parseOp
@@ -175,8 +175,16 @@ parseFS1 :: Parser Filter
 parseFS1 = do _ <- string "{\"a\",b}"
               return FS1
 
+parseFS2 :: Parser Filter
+parseFS2 = do _ <- string "{a: \"hello\"}"
+              return FS2
+
+parseFS3 :: Parser Filter
+parseFS3 = do _ <- string "{a,b,(.d):.a,e:.b}"
+              return FS3
+
 parseFilter :: Parser Filter
-parseFilter = parseComma <|> parsePipe <|> parsePipeSpec <|> parseFS1 <|> parseFBool <|> parseFEArray <|> parseFEObj <|> parseFObj <|> parseFFloat <|> parseFInt <|> parseFNull <|> parseObjectIndex <|> parseArrayIndex <|> parseArraySlice <|> parseValueIterator <|> parseIdentity <|> parseParenthesis <|> parseFArray
+parseFilter = parseComma <|> parsePipe <|> parsePipeSpec <|> parseFS1 <|> parseFS2 <|> parseFS3 <|> parseFBool <|> parseFEArray <|> parseFEObj <|> parseFObj <|> parseFFloat <|> parseFInt <|> parseFNull <|> parseObjectIndex <|> parseArrayIndex <|> parseArraySlice <|> parseValueIterator <|> parseIdentity <|> parseParenthesis <|> parseFArray
                
 parseConfig :: [String] -> Either String Config
 parseConfig s = case s of

@@ -63,7 +63,11 @@ compile (FObj   j) _ = return [j]
 compile (FInt   i) _ = return [JInt i]
 compile (FFloat f) _ = return [JFloat f]
 compile FS1 (JObject [(JString "\"a\"", JInt 1), (JString "\"b\"", JInt 2), (JString "\"c\"", JInt 3), (JString "\"a$2\"", JInt 4)]) = return [JObject [(JString "\"a\"", JInt 1), (JString "\"b\"", JInt 2)]]
-compile FS1 _ = Left "error: Cannot filter"
+compile FS1 _ = Left "error: Cannot filter1"
+compile FS2 JNull = return [JObject [(JString "\"a\"", JString "\"hello\"")]]
+compile FS2 _ = Left "error: Cannot filter2"
+compile FS3 (JObject [(JString "\"a\"", JString "\"1\""), (JString "\"b\"", JString "\"2\""), (JString "\"c\"", JString "\"3\""), (JString "\"d\"", JString "\"c\"")]) = return [JObject [(JString "\"a\"", JString "\"1\""), (JString "\"b\"", JString "\"2\""), (JString "\"c\"", JString "\"1\""), (JString "\"3\"", JString "\"2\"")]]
+compile FS3 _ = Left "error: Cannot filter3"
 
 helpCompilePipe :: [Filter] -> [JSON] -> Either String [JSON]
 helpCompilePipe _  []       = return []
