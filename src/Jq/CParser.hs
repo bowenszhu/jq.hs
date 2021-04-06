@@ -10,7 +10,8 @@ parseIdentity = do
   return Identity
 
 parseObjectIndex :: Parser Filter
-parseObjectIndex = do _ <- char '.'
+parseObjectIndex = do space
+                      _ <- char '.'
                       (do xs <- obj_ident
                           (do _ <- char '?'
                               return (ObjectIndex ("\"" ++ xs ++ "\"") False)
@@ -33,6 +34,13 @@ parseObjectIndex = do _ <- char '.'
                            <|>
                            return (ObjectIndex ("\"" ++ xs ++ "\"") True)))
 
+parseArrayIndex :: Parser Filter
+parseArrayIndex = do _ <- symbol "."
+                     _ <- symbol "["
+                     i <- nat
+                     _ <- symbol "]"
+                     return (ArrayIndex i)                     
+
 parsePipe :: Parser Filter
 parsePipe = do f <- parseObjectIndex
                (do _ <- symbol "|"
@@ -45,7 +53,7 @@ parsePipe = do f <- parseObjectIndex
                 return (Pipe [f]))
 
 parseFilter :: Parser Filter
-parseFilter = parsePipe <|> parseObjectIndex <|> parseIdentity
+parseFilter = parsePipe <|> parseObjectIndex <|> parseArrayIndex <|> parseIdentity
 
 parseConfig :: [String] -> Either String Config
 parseConfig s = case s of

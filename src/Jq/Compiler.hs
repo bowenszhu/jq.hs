@@ -9,7 +9,7 @@ import           Jq.Json
 type JProgram a = JSON -> Either String a
 
 compile :: Filter -> JProgram [JSON]
-compile (Identity) inp = return [inp]
+compile Identity inp = return [inp]
 compile (ObjectIndex s _) (JObject m) =
   case Map.lookup (JString s) (Map.fromList m) of
     Nothing -> return [JNull]
@@ -17,9 +17,11 @@ compile (ObjectIndex s _) (JObject m) =
 compile (ObjectIndex s b) _ = if b
   then Left ("error: Cannot index with string \"" ++ s ++ "\"")
   else return []
-compile (Pipe []      ) inp = return [inp]
-compile (Pipe [f     ]) inp = compile f inp
-compile (Pipe (f : fs)) inp = case compile f inp of
+compile (ArrayIndex i       ) (JArray a) = return [a !! i]
+compile (ArrayIndex _       ) _          = Left "error: Cannot index non-array"
+compile (Pipe       []      ) inp        = return [inp]
+compile (Pipe       [f     ]) inp        = compile f inp
+compile (Pipe       (f : fs)) inp        = case compile f inp of
   Left  s   -> Left s
   Right [r] -> compile (Pipe fs) r
   _         -> Left "error: Cannot pipe"
