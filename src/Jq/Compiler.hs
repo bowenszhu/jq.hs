@@ -24,8 +24,8 @@ compile (ArrayIndex _ b) _ =
   if b then Left "error: Cannot index non-array" else return []
 compile (ArraySlice s t _) (JArray a) =
   return [JArray [ a !! i | i <- [s .. min (t - 1) (length a - 1)] ]]
-compile (ArraySlice s t _) (JString a) =
-  return [JString [ a !! i | i <- [s + 1 .. min t (length a)] ]]
+compile (ArraySlice s t _) (JString a) = return
+  [JString ("\"" ++ [ a !! i | i <- [s + 1 .. min t (length a)] ] ++ "\"")]
 compile ArraySlice{} JNull = return [JNull]
 compile (ArraySlice _ _ b) _ =
   if b then Left "error: Cannot slice non-array" else return []
