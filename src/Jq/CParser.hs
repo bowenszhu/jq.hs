@@ -2,6 +2,7 @@ module Jq.CParser where
 
 import Parsing.Parsing
 import Jq.Filters
+import Jq.JParser (parseObject)
 -- import Debug.Trace (trace)
 
 parseIdentity :: Parser Filter
@@ -148,18 +149,22 @@ parseFNull :: Parser Filter
 parseFNull = do _ <- string "null"
                 return FNull
 
-parseFObj :: Parser Filter
-parseFObj = do _ <- symbol "{"
-               _ <- symbol "}"
-               return FObj
+parseFEObj :: Parser Filter
+parseFEObj = do _ <- symbol "{"
+                _ <- symbol "}"
+                return FEObj
 
 parseFEArray :: Parser Filter
 parseFEArray = do _ <- symbol "["
                   _ <- symbol "]"
                   return FEArray
+
+parseFObj :: Parser Filter
+parseFObj = do j <- parseObject
+               return (FObj j)
                
 parseFilter :: Parser Filter
-parseFilter = parseComma <|> parsePipe <|> parsePipeSpec <|> parseFBool <|> parseFEArray <|> parseFObj <|> parseFNull <|> parseObjectIndex <|> parseArrayIndex <|> parseArraySlice <|> parseValueIterator <|> parseIdentity <|> parseParenthesis <|> parseFArray
+parseFilter = parseComma <|> parsePipe <|> parsePipeSpec <|> parseFBool <|> parseFEArray <|> parseFEObj <|> parseFObj <|> parseFNull <|> parseObjectIndex <|> parseArrayIndex <|> parseArraySlice <|> parseValueIterator <|> parseIdentity <|> parseParenthesis <|> parseFArray
                
 parseConfig :: [String] -> Either String Config
 parseConfig s = case s of

@@ -1,8 +1,9 @@
 module Jq.Filters where
 
 import           Data.List
+import           Jq.Json                        ( JSON )
 
-data Filter = Identity | ObjectIndex String Bool | ArrayIndex Int Bool | ArraySlice Int Int Bool | AllIterator Bool | ArrayIterator [Int] Bool | Comma [Filter] | Pipe [Filter] | FArray Filter | FBool Bool | FNull | FObj | FEArray
+data Filter = Identity | ObjectIndex String Bool | ArrayIndex Int Bool | ArraySlice Int Int Bool | AllIterator Bool | ArrayIterator [Int] Bool | Comma [Filter] | Pipe [Filter] | FArray Filter | FBool Bool | FNull | FEObj | FEArray | FObj JSON
 
 instance Show Filter where
   show Identity          = "."
@@ -18,8 +19,9 @@ instance Show Filter where
   show (FArray f ) = "[" ++ show f ++ "]"
   show (FBool  b ) = show b
   show FNull       = "null"
-  show FObj        = "{}"
+  show FEObj       = "{}"
   show FEArray     = "[]"
+  show (FObj j)    = show j
 
 -- instance Show Filter where
 --   show Identity          = "Identity."
