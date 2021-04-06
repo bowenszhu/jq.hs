@@ -58,6 +58,7 @@ compile (FArray f) inp = case compile f inp of
 compile (FBool b) _ = return [JBool b]
 compile FNull _ = return [JNull]
 compile FObj _ = return [JObject []]
+compile FEArray _ = return [JArray []]
 
 helpCompilePipe :: [Filter] -> [JSON] -> Either String [JSON]
 helpCompilePipe _  []       = return []
