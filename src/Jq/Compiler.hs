@@ -22,8 +22,8 @@ compile (ArrayIndex _ b) _          = if b then Left "error: Cannot index non-ar
 compile (ArraySlice s t) (JArray a) =
   return [JArray [ a !! i | i <- [s .. t - 1] ]]
 compile (ArraySlice _ _) _ = Left "error: Cannot slice non-array"
-compile ObjectIterator (JObject m) = return [ v | (_, v) <- m ]
-compile ObjectIterator _ = Left "error: Cannot slice non-object"
+compile (ObjectIterator _) (JObject m) = return [ v | (_, v) <- m ]
+compile (ObjectIterator b) _ = if b then Left "error: Cannot slice non-object" else return []
 compile (ArrayIterator xs) (JArray a) = return [ a !! i | i <- xs ]
 compile (ArrayIterator _) _ = Left "error: Cannot iterator non-array"
 compile (Pipe []) inp = return [inp]

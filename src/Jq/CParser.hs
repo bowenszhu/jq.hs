@@ -66,7 +66,10 @@ parseValueIterator :: Parser Filter
 parseValueIterator = do _ <- symbol "."
                         _ <- symbol "["
                         (do _ <- symbol "]"
-                            return ObjectIterator
+                            (do _ <- symbol "?"
+                                return (ObjectIterator False)
+                             <|>
+                             return (ObjectIterator True))
                          <|>
                          parseValueIteratorElem)
 
