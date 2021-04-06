@@ -147,9 +147,14 @@ parseFBool = do _ <- string "true"
 parseFNull :: Parser Filter
 parseFNull = do _ <- string "null"
                 return FNull
+
+parseFObj :: Parser Filter
+parseFObj = do _ <- symbol "{"
+               _ <- symbol "}"
+               return FObj
                
 parseFilter :: Parser Filter
-parseFilter = parseComma <|> parsePipe <|> parsePipeSpec <|> parseFBool <|> parseFNull <|> parseObjectIndex <|> parseArrayIndex <|> parseArraySlice <|> parseValueIterator <|> parseIdentity <|> parseParenthesis <|> parseFArray
+parseFilter = parseComma <|> parsePipe <|> parsePipeSpec <|> parseFBool <|> parseFObj <|> parseFNull <|> parseObjectIndex <|> parseArrayIndex <|> parseArraySlice <|> parseValueIterator <|> parseIdentity <|> parseParenthesis <|> parseFArray
                
 parseConfig :: [String] -> Either String Config
 parseConfig s = case s of
