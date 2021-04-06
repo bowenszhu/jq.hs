@@ -1,8 +1,11 @@
 module Jq.Filters where
 
-data Filter = Identity
+data Filter = Identity | ObjectIndex String
 
 instance Show Filter where
-  show (Identity) = "."
+  show (Identity     ) = "."
+  show (ObjectIndex s) = "." ++ s
 
-data Config = ConfigC {filters :: Filter}
+data Config = ConfigC
+  { filters :: Filter
+  }

@@ -139,6 +139,11 @@ ident = do x  <- lower
            xs <- many (alphanum <|> char '_')
            return (x:xs)
 
+obj_ident :: Parser String
+obj_ident = do x <- letter <|> char '_'
+               xs <- many (alphanum <|> char '_')
+               return (x:xs)
+
 nat :: Parser Int
 nat = do xs <- some digit
          return (read xs)

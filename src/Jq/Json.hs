@@ -14,7 +14,7 @@ data JSON
 
 instance Eq JSON where
   (JString a) == (JString b) = a == b
-  _           == _           = True
+  _           == _           = False
 
 instance Ord JSON where
   (JString a) < (JString b) = a < b
