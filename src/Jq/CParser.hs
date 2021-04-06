@@ -102,6 +102,10 @@ parsePipeElem = do _ <- symbol "|"
                    y <- parsePipeElem
                    return ((\(Pipe xs) -> Pipe (x:xs)) y)
                 <|>
+                do _ <- symbol "|"
+                   x <- parseOp
+                   return (Pipe [x])
+                <|>
                 do x <- parseOp
                    y <- parsePipeElem
                    return ((\(Pipe xs) -> Pipe (x:xs)) y)
