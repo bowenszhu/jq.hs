@@ -79,6 +79,23 @@ parseValueIterator = do _ <- symbol "."
                          <|>
                          parseValueIteratorElem)
 
+parseOp :: Parser Filter
+parseOp = parseObjectIndex <|> parseArrayIndex <|> parseArraySlice <|> parseValueIterator <|> parseIdentity
+
+parseCommaElem :: Parser Filter
+parseCommaElem = do x <- parseOp
+                    (do _ <- symbol ","
+                        y <- parseCommaElem
+                        return ((\(Comma xs) -> Comma (x:xs)) y)
+                     <|>
+                     return (Comma [x]))
+
+parseComma :: Parser Filter
+parseComma = do x <- parseOp
+                _ <- symbol ","
+                y <- parseCommaElem
+                return ((\(Comma xs) -> Comma (x:xs)) y)
+
 parsePipe :: Parser Filter
 parsePipe = do f <- parseObjectIndex
                (do _ <- symbol "|"
@@ -91,7 +108,7 @@ parsePipe = do f <- parseObjectIndex
                 return (Pipe [f]))
 
 parseFilter :: Parser Filter
-parseFilter = parsePipe <|> parseObjectIndex <|> parseArrayIndex <|> parseArraySlice <|> parseValueIterator <|> parseIdentity
+parseFilter = parseComma <|> parsePipe <|> parseObjectIndex <|> parseArrayIndex <|> parseArraySlice <|> parseValueIterator <|> parseIdentity
 
 parseConfig :: [String] -> Either String Config
 parseConfig s = case s of

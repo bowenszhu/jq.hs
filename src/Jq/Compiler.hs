@@ -30,6 +30,14 @@ compile (ObjectIterator b) _ =
 compile (ArrayIterator xs _) (JArray a) = return [ a !! i | i <- xs ]
 compile (ArrayIterator _ b) _ =
   if b then Left "error: Cannot iterator non-array" else return []
+compile (Comma []) inp = return [inp]
+compile (Comma [f]) inp = compile f inp
+compile (Comma (f:fs)) inp = case compile f inp of
+    Left s -> Left s
+    Right [r] -> case compile (Comma fs) inp of
+        Left t -> Left t
+        Right rs -> return (r:rs)
+    _ -> Left "error: Cannot comma"
 compile (Pipe []      ) inp = return [inp]
 compile (Pipe [f     ]) inp = compile f inp
 compile (Pipe (f : fs)) inp = case compile f inp of
